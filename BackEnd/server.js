@@ -15,6 +15,8 @@ const db = mysql.createConnection({ // inisiasi jaringan database
     database: 'pemilihan'
 })
 
+// get method
+
 app.get('/data_kandidat', (req,res) => { // get data kandidat
     const sql = "SELECT * FROM kandidat";
     db.query(sql, (err,data) => {
@@ -37,4 +39,10 @@ app.get('/data_token', (req,res) => { // get data admin auth
         if(err) return res.json(err);
         return res.json(data);
     })
+})
+
+// post method
+
+app.post('/add_user', (req,res) => {
+    const sql = "INSERT INTO user (KTA, PhotoUrl, Voted, VotedWho) VALUES (?,?,?,?)"
 })
