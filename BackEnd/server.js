@@ -51,16 +51,29 @@ app.get('/data_mahasiswa', (req,res) => { // get data mahasiswa
 
 // post method
 
-app.post('/add_user', (req,res) => {
-    const sql = "INSERT INTO user (KTA, PhotoUrl, Voted, VotedWho) VALUES (?,?,?,?)"
+app.post('/add_user', (req, res) => {
+    const sql = "INSERT INTO user (KTA, PhotoUrl, Voted, VotedWho, Mengapa) VALUES (?,?,?,?,?)";
     const val = [
         req.body.KTA,
-        req.body.url,
-        req.body.Voted, // 0 = false | 1 = true (buat validasi aja biar gabisa vote 2 kali)
-        req.body.VoteSiapa // 1 = paslon 1 | 2 = paslon 2 | 3 = paslon 3
-    ]
-})
+        req.body.PhotoUrl || null,
+        req.body.voted,
+        req.body.VotedWho,
+        req.body.why || ""
+    ];
 
+    db.query(sql, val, (err, result) => {
+        if (err) {
+            if (err.code === "ER_DUP_ENTRY") {
+                return res.json({
+                    success: false,
+                    message: `Anda sebelumnya sudah ngevote (Nomor urut ${req.body.VotedWho})`
+                });
+            }
+            return res.json({ success: false, message: err.message });
+        }
+        res.json({ success: true });
+    });
+});
 
 
 app.listen(8081, ()=>{ // inisasi port listen (server backend)
