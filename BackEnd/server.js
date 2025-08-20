@@ -41,8 +41,22 @@ app.get('/data_token', (req,res) => { // get data admin auth
     })
 })
 
+app.get('/data_mahasiswa', (req,res) => { // get data mahasiswa
+    const sql = "SELECT * FROM data_mahasiswa";
+        db.query(sql, (err,data) => {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+})
+
 // post method
 
 app.post('/add_user', (req,res) => {
     const sql = "INSERT INTO user (KTA, PhotoUrl, Voted, VotedWho) VALUES (?,?,?,?)"
+    const val = [
+        req.body.KTA,
+        req.body.url,
+        req.body.Voted, // 0 = false | 1 = true (buat validasi aja biar gabisa vote 2 kali)
+        req.body.VoteSiapa // 1 = paslon 1 | 2 = paslon 2 | 3 = paslon 3
+    ]
 })
