@@ -19,7 +19,7 @@ function Kandidat() {
     <div>
         {kandidat.map (k => (
             <button key={k.Number}>
-                <h1>{k.Name}</h1>
+                <h1>{k.Name} - {k.Number}</h1>
             </button>
         ))}
     </div>
