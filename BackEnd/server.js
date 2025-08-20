@@ -108,7 +108,7 @@ const TELEGRAM_CHAT_ID = "-4906306780";
 app.post("/stop_event", (req, res) => {
   try {
     eventActive = false;
-
+    isVotingActive = false;
     db.query("SELECT * FROM user WHERE Voted=1", async (err, votes) => {
       if (err) {
         console.error(err);
