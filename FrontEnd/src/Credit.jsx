@@ -19,7 +19,7 @@ function Credit() {
         }}
       >
         <span style={{ color: "#03AC0E", fontWeight: "600" }}>Voting Kampus</span>{" "}
-        Web ini dibuat dengan :heart:
+        Web ini dibuat dengan 💕
       </div>
     </div>
   );
