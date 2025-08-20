@@ -12,7 +12,7 @@ function App() {
       <Navbar user={user} setUser={setUser} />
       <Routes>
         <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
-        <Route path="/kandidat" element={<Kandidat/>} />
+        <Route path="/kandidat" element={<Kandidat user={user} />} />
       </Routes>
     </Router>
   );

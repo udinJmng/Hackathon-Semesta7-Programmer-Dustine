@@ -1,7 +1,6 @@
-import React from "react";
-import Navbar from "./Navbar.jsx";
+import React, { useState } from "react";
 
-function Kandidat() {
+function Kandidat({ user }) {
   const kandidat = [
     {
       Name: "Tiger",
@@ -24,10 +23,59 @@ function Kandidat() {
     },
   ];
 
+  const [selected, setSelected] = useState(null);
+  const [reason, setReason] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+
+  const handleVoteClick = (k) => {
+    if (!user) return alert("Silakan login dulu!");
+    setSelected(k);
+    setReason("");
+    setShowModal(true);
+    setSuccess("");
+  };
+
+const handleSubmitVote = async () => {
+  if (!reason) return alert("Isi alasan kamu memilih kandidat ini!");
+  setLoading(true);
+  try {
+    const res = await fetch("http://localhost:8081/add_user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        KTA: user.KTA,
+        PhotoUrl: null,
+        voted: 1,
+        VotedWho: selected.Number,
+        why: reason,
+      }),
+    });
+
+    // debug
+    console.log("Response status:", res.status);
+    const text = await res.text();
+    console.log("Response text:", text);
+
+    let data;
+    try { data = JSON.parse(text); } catch { data = null; }
+
+    if (data && data.success) {
+      setSuccess("Vote berhasil dikirim!");
+      setShowModal(false);
+    } else {
+      alert("Gagal vote: " + (data?.message || "Unknown error"));
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error saat mengirim vote.");
+  }
+  setLoading(false);
+};
+
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }}>
-      {/* Navbar muncul di atas */}
-
       {/* Grid Kandidat */}
       <div
         style={{
@@ -46,7 +94,7 @@ function Kandidat() {
               borderRadius: "16px",
               padding: "24px",
               textAlign: "center",
-              backgroundColor: "#111", // nuansa gelap
+              backgroundColor: "#111",
               color: "#fff",
               boxShadow: "0px 4px 16px rgba(0,0,0,0.2)",
               transition: "transform 0.25s ease, box-shadow 0.25s ease",
@@ -63,7 +111,6 @@ function Kandidat() {
                 "0px 4px 16px rgba(0,0,0,0.2)";
             }}
           >
-            {/* Foto Kandidat */}
             <div
               style={{
                 width: "120px",
@@ -85,51 +132,115 @@ function Kandidat() {
                 <img
                   src={k.PhotoUrl}
                   alt={k.Name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 k.Name[0]
               )}
             </div>
-
-            {/* Nama & Nomor */}
-            <h2
-              style={{
-                fontSize: "22px",
-                fontWeight: "700",
-                marginBottom: "6px",
-              }}
-            >
+            <h2 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>
               {k.Name}
             </h2>
-            <p
-              style={{
-                fontSize: "16px",
-                fontWeight: "500",
-                marginBottom: "12px",
-                color: "#ccc",
-              }}
-            >
+            <p style={{ fontSize: "16px", fontWeight: "500", marginBottom: "12px", color: "#ccc" }}>
               Nomor Urut <span style={{ color: "#fff" }}>#{k.Number}</span>
             </p>
+            <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#aaa" }}>{k.Motto}</p>
 
-            {/* Motto */}
-            <p
+            <button
+              onClick={() => handleVoteClick(k)}
               style={{
+                marginTop: "12px",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: "#03AC0E",
+                color: "#fff",
+                fontWeight: "600",
                 fontSize: "14px",
-                lineHeight: "1.6",
-                color: "#aaa",
               }}
             >
-              {k.Motto}
-            </p>
+              Vote
+            </button>
           </div>
         ))}
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#111",
+              padding: "24px",
+              borderRadius: "12px",
+              width: "320px",
+              color: "#fff",
+            }}
+          >
+            <h3 style={{ marginBottom: "12px" }}>Voting: {selected.Name}</h3>
+            <textarea
+              placeholder="Mengapa kamu memilih kandidat ini?"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                marginBottom: "12px",
+                backgroundColor: "#222",
+                color: "#fff",
+                resize: "none",
+                height: "80px",
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  backgroundColor: "#555",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitVote}
+                disabled={loading}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  backgroundColor: "#03AC0E",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                {loading ? "Submitting..." : "Submit Vote"}
+              </button>
+            </div>
+            {success && <p style={{ color: "#0f0", marginTop: "10px" }}>{success}</p>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
