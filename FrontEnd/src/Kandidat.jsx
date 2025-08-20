@@ -1,26 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function Kandidat({ user }) {
   const kandidat = [
-    {
-      Name: "Tiger",
-      Number: 1,
-      PhotoUrl: null,
-      Motto: "Bisa menyejahterakan masyarakat Kampus dengan baik",
-    },
-    {
-      Name: "Wolf",
-      Number: 2,
-      PhotoUrl: null,
-      Motto: "Ingin menjaga fasilitas Kampus",
-    },
-    {
-      Name: "Lion",
-      Number: 3,
-      PhotoUrl: null,
-      Motto:
-        "Ingin membuat masyarakat kampus taat dengan kebersihan dan kesehatan",
-    },
+    { Name: "Tiger", Number: 1, PhotoUrl: null, Motto: "Bisa menyejahterakan masyarakat Kampus dengan baik" },
+    { Name: "Wolf", Number: 2, PhotoUrl: null, Motto: "Ingin menjaga fasilitas Kampus" },
+    { Name: "Lion", Number: 3, PhotoUrl: null, Motto: "Ingin membuat masyarakat kampus taat dengan kebersihan dan kesehatan" },
   ];
 
   const [selected, setSelected] = useState(null);
@@ -28,51 +12,65 @@ function Kandidat({ user }) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const [isVotingActive, setIsVotingActive] = useState(false);
+
+  // cek status voting dari backend
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/event_status"); 
+        const data = await res.json();
+        setIsVotingActive(data.active);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 5000); // update tiap 5 detik
+    return () => clearInterval(interval);
+  }, []);
 
   const handleVoteClick = (k) => {
     if (!user) return alert("Silakan login dulu!");
+    if (!isVotingActive) return alert("Voting belum dimulai!");
     setSelected(k);
     setReason("");
     setShowModal(true);
     setSuccess("");
   };
 
-const handleSubmitVote = async () => {
-  if (!reason) return alert("Isi alasan kamu memilih kandidat ini!");
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:8081/add_user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        KTA: user.KTA,
-        PhotoUrl: null,
-        voted: 1,
-        VotedWho: selected.Number,
-        why: reason,
-      }),
-    });
+  const handleSubmitVote = async () => {
+    if (!reason) return alert("Isi alasan kamu memilih kandidat ini!");
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8081/add_user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          KTA: user.KTA,
+          PhotoUrl: null,
+          voted: 1,
+          VotedWho: selected.Number,
+          why: reason,
+        }),
+      });
 
-    // debug
-    console.log("Response status:", res.status);
-    const text = await res.text();
-    console.log("Response text:", text);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = null; }
 
-    let data;
-    try { data = JSON.parse(text); } catch { data = null; }
-
-    if (data && data.success) {
-      setSuccess("Vote berhasil dikirim!");
-      setShowModal(false);
-    } else {
-      alert("Gagal vote: " + (data?.message || "Unknown error"));
+      if (data && data.success) {
+        setSuccess("Vote berhasil dikirim!");
+        setShowModal(false);
+      } else {
+        alert("Gagal vote: " + (data?.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saat mengirim vote.");
     }
-  } catch (err) {
-    console.error(err);
-    alert("Error saat mengirim vote.");
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -98,17 +96,8 @@ const handleSubmitVote = async () => {
               color: "#fff",
               boxShadow: "0px 4px 16px rgba(0,0,0,0.2)",
               transition: "transform 0.25s ease, box-shadow 0.25s ease",
-              cursor: "pointer",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = "translateY(-6px)";
-              e.currentTarget.style.boxShadow =
-                "0px 8px 20px rgba(0,0,0,0.35)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = "translateY(0px)";
-              e.currentTarget.style.boxShadow =
-                "0px 4px 16px rgba(0,0,0,0.2)";
+              cursor: isVotingActive ? "pointer" : "not-allowed",
+              opacity: isVotingActive ? 1 : 0.5,
             }}
           >
             <div
@@ -129,18 +118,12 @@ const handleSubmitVote = async () => {
               }}
             >
               {k.PhotoUrl ? (
-                <img
-                  src={k.PhotoUrl}
-                  alt={k.Name}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
+                <img src={k.PhotoUrl} alt={k.Name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 k.Name[0]
               )}
             </div>
-            <h2 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>
-              {k.Name}
-            </h2>
+            <h2 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "6px" }}>{k.Name}</h2>
             <p style={{ fontSize: "16px", fontWeight: "500", marginBottom: "12px", color: "#ccc" }}>
               Nomor Urut <span style={{ color: "#fff" }}>#{k.Number}</span>
             </p>
@@ -148,13 +131,14 @@ const handleSubmitVote = async () => {
 
             <button
               onClick={() => handleVoteClick(k)}
+              disabled={!isVotingActive || loading}
               style={{
                 marginTop: "12px",
                 padding: "8px 16px",
                 borderRadius: "8px",
                 border: "none",
-                cursor: "pointer",
-                backgroundColor: "#03AC0E",
+                cursor: isVotingActive ? "pointer" : "not-allowed",
+                backgroundColor: isVotingActive ? "#03AC0E" : "#555",
                 color: "#fff",
                 fontWeight: "600",
                 fontSize: "14px",
@@ -166,8 +150,8 @@ const handleSubmitVote = async () => {
         ))}
       </div>
 
-      {/* Modal */}
-      {showModal && (
+      {/* Modal Voting */}
+      {showModal && selected && (
         <div
           style={{
             position: "fixed",

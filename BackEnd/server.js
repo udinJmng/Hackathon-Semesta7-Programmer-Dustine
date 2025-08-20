@@ -33,13 +33,29 @@ app.get('/data_user', (req,res) => { // get data user (bisa buat cek kta mahasis
     })
 })
 
-app.get('/data_token', (req,res) => { // get data admin auth
-    const sql = "SELECT * FROM adminauth";
-        db.query(sql, (err,data) => {
-        if(err) return res.json(err);
-        return res.json(data);
-    })
-})
+app.get('/get_votes', (req, res) => {
+    const sql = "SELECT KTA, VotedWho, Mengapa FROM user WHERE Voted = 1";
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        res.json(results);
+    });
+});
+
+
+app.get("/data_token", (req, res) => { // get data admin auth
+  const password = req.query.password;
+  db.query("SELECT token FROM adminauth WHERE token = ?", [password], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.json({ success: false, message: "Error database" });
+    }
+    if (results.length > 0) {
+      res.json({ success: true, token: results[0].token });
+    } else {
+      res.json({ success: false });
+    }
+  });
+});
 
 app.get('/data_mahasiswa', (req,res) => { // get data mahasiswa
     const sql = "SELECT * FROM data_mahasiswa";
@@ -48,6 +64,7 @@ app.get('/data_mahasiswa', (req,res) => { // get data mahasiswa
         return res.json(data);
     })
 })
+
 
 // post method
 
@@ -75,6 +92,25 @@ app.post('/add_user', (req, res) => {
     });
 });
 
+let isVotingActive = false; // controller
+
+app.post("/start_event", (req, res) => {
+  if (isVotingActive) return res.json({ success: false, message: "Event sudah berjalan" });
+  isVotingActive = true;
+  console.log("Voting event dimulai");
+  res.json({ success: true, message: "Event dimulai" });
+});
+
+app.post("/stop_event", (req, res) => {
+  if (!isVotingActive) return res.json({ success: false, message: "Event belum dimulai" });
+  isVotingActive = false;
+  console.log("Voting event dihentikan");
+  res.json({ success: true, message: "Event dihentikan" });
+});
+
+app.get("/event_status", (req, res) => {
+  res.json({ active: isVotingActive });
+});
 
 app.listen(8081, ()=>{ // inisasi port listen (server backend)
     console.log("Listening");
