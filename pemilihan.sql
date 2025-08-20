@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS `data_mahasiswa` (
 -- Dumping data for table pemilihan.data_mahasiswa: ~5 rows (approximately)
 /*!40000 ALTER TABLE `data_mahasiswa` DISABLE KEYS */;
 INSERT INTO `data_mahasiswa` (`KTA`, `Nama`, `Profile`, `tLahir`, `Password`, `email`) VALUES
-	('M-1125', 'Mahendra Pramudita Jati', NULL, '2007-08-20', 'mobilkeren', 'dustinekcwx@gmail.com'),
-	('M-2125', 'Matias Jordan Aditama', NULL, '2007-12-20', 'jordankambing', 'satetahuroti@gmail.com'),
-	('M-3321', 'Marlon Galon', NULL, '2002-07-20', 'switchcase', 'budi01geming223@gmail.com'),
-	('M-4425', 'Andre Saputra', NULL, '2005-12-14', 'whiletruedo', 'dustinekcwx@gmail.com'),
-	('M-8540', 'Reza Auditore', NULL, '2000-03-24', 'pojok23', 'dustinekcwx@gmail.com');
+	('M-1125', 'Mahendra Pramudita Jati', NULL, '2007-08-20', 'mobilkeren', ''),
+	('M-2125', 'Matias Jordan Aditama', NULL, '2007-12-20', 'jordankambing', ''),
+	('M-3321', 'Marlon Galon', NULL, '2002-07-20', 'switchcase', ''),
+	('M-4425', 'Andre Saputra', NULL, '2005-12-14', 'whiletruedo', ''),
+	('M-8540', 'Reza Auditore', NULL, '2000-03-24', 'pojok23', '');
 /*!40000 ALTER TABLE `data_mahasiswa` ENABLE KEYS */;
 
 -- Dumping structure for table pemilihan.user
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`KTA`(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table pemilihan.user: ~5 rows (approximately)
+-- Dumping data for table pemilihan.user: ~0 rows (approximately)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
