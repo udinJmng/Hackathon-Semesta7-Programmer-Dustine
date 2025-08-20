@@ -9,7 +9,7 @@ function Navbar({ user, setUser }) {
 
   const menuItems = [
     { name: "Kandidat", path: "/kandidat" },
-    { name: "Percentage", path: "/percentage" },
+    { name: "Hasil", path: "/percentage" },
   ];
 
   const handleLogout = () => {

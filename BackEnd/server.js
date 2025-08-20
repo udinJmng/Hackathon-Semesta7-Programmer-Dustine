@@ -84,7 +84,7 @@ app.post('/add_user', (req, res) => {
             if (err.code === "ER_DUP_ENTRY") {
                 return res.json({
                     success: false,
-                    message: `Anda sebelumnya sudah ngevote (Nomor urut ${req.body.VotedWho})`
+                    message: `Anda sebelumnya sudah ngevote`
                 });
             }
             return res.json({ success: false, message: err.message });
@@ -103,7 +103,7 @@ app.post("/start_event", (req, res) => {
 });
 
 const TELEGRAM_BOT_TOKEN = "8300053268:AAEaTbhe1AbXkVHHTL47CfsXv1I2xVMMaC0";
-const TELEGRAM_CHAT_ID = "7682643416";
+const TELEGRAM_CHAT_ID = "-4906306780";
 
 app.post("/stop_event", (req, res) => {
   try {
