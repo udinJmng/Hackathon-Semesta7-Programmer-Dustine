@@ -1,4 +1,4 @@
-// bagian initialize lib
+// bagian inisiasi lib
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
@@ -59,4 +59,10 @@ app.post('/add_user', (req,res) => {
         req.body.Voted, // 0 = false | 1 = true (buat validasi aja biar gabisa vote 2 kali)
         req.body.VoteSiapa // 1 = paslon 1 | 2 = paslon 2 | 3 = paslon 3
     ]
+})
+
+
+
+app.listen(8081, ()=>{ // inisasi port listen (server backend)
+    console.log("Listening");
 })
