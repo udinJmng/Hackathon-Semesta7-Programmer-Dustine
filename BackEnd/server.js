@@ -22,3 +22,11 @@ app.get('/data_kandidat', (req,res) => { // get data kandidat
         return res.json(data);
     })
 })
+
+app.get('/data_user', (req,res) => { // get data user (bisa buat cek kta mahasiswa / buat nantinya get data yang dia pilih)
+    const sql = "SELECT * FROM user";
+        db.query(sql, (err,data) => {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+})
