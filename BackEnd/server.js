@@ -30,3 +30,11 @@ app.get('/data_user', (req,res) => { // get data user (bisa buat cek kta mahasis
         return res.json(data);
     })
 })
+
+app.get('/data_token', (req,res) => { // get data admin auth
+    const sql = "SELECT * FROM adminauth";
+        db.query(sql, (err,data) => {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+})
