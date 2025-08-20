@@ -1,6 +1,7 @@
 // bagian inisiasi lib
 const express = require("express");
 const mysql = require("mysql");
+const axios = require("axios")
 const cors = require("cors");
 
 const app = express()
@@ -17,13 +18,13 @@ const db = mysql.createConnection({ // inisiasi jaringan database
 
 // get method
 
-app.get('/data_kandidat', (req,res) => { // get data kandidat
-    const sql = "SELECT * FROM kandidat";
-    db.query(sql, (err,data) => {
-        if(err) return res.json(err);
-        return res.json(data);
-    })
-})
+// app.get('/data_kandidat', (req,res) => { // get data kandidat
+//     const sql = "SELECT * FROM kandidat";
+//     db.query(sql, (err,data) => {
+//         if(err) return res.json(err);
+//         return res.json(data);
+//     })
+// })
 
 app.get('/data_user', (req,res) => { // get data user (bisa buat cek kta mahasiswa / buat nantinya get data yang dia pilih)
     const sql = "SELECT * FROM user";
@@ -101,18 +102,63 @@ app.post("/start_event", (req, res) => {
   res.json({ success: true, message: "Event dimulai" });
 });
 
+const TELEGRAM_BOT_TOKEN = "8300053268:AAEaTbhe1AbXkVHHTL47CfsXv1I2xVMMaC0";
+const TELEGRAM_CHAT_ID = "7682643416";
+
 app.post("/stop_event", (req, res) => {
-  if (!isVotingActive) return res.json({ success: false, message: "Event belum dimulai" });
-  isVotingActive = false;
-  console.log("Voting event dihentikan");
-  res.json({ success: true, message: "Event dihentikan" });
+  try {
+    eventActive = false;
+
+    db.query("SELECT * FROM user WHERE Voted=1", async (err, votes) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: "DB error" });
+      }
+
+      const kandidat = [
+        { Number: 1, Name: "Tiger" },
+        { Number: 2, Name: "Wolf" },
+        { Number: 3, Name: "Lion" },
+      ];
+
+      const counts = kandidat.map(k => ({
+        ...k,
+        count: votes.filter(v => v.VotedWho === k.Number).length,
+      }));
+
+      const totalVotes = votes.length;
+      const winner = counts.reduce((a, b) => (a.count > b.count ? a : b), { count: 0 });
+
+      let msg = `📊 Voting dihentikan!\n\n`;
+      counts.forEach(c => {
+        const pct = totalVotes ? ((c.count / totalVotes) * 100).toFixed(1) : 0;
+        msg += `${c.Name}: ${c.count} votes (${pct}%)\n`;
+      });
+      msg += `\n🏆 Pemenang: ${winner.Name} dengan ${winner.count} votes`;
+
+      try {
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          chat_id: TELEGRAM_CHAT_ID,
+          text: msg,
+        });
+        res.json({ success: true, message: "Event dihentikan dan hasil dikirim ke Telegram!" });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Gagal kirim Telegram" });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Gagal menghentikan event" });
+  }
 });
+
 
 app.get("/event_status", (req, res) => {
   res.json({ active: isVotingActive });
 });
 
-const axios = require("axios")
+
 
 app.listen(8081, ()=>{ // inisasi port listen (server backend)
     console.log("Listening");

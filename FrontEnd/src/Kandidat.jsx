@@ -14,7 +14,6 @@ function Kandidat({ user }) {
   const [success, setSuccess] = useState("");
   const [isVotingActive, setIsVotingActive] = useState(false);
 
-  // cek status voting dari backend
   useEffect(() => {
     const fetchStatus = async () => {
       try {
