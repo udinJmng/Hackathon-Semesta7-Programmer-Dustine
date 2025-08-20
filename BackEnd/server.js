@@ -112,6 +112,8 @@ app.get("/event_status", (req, res) => {
   res.json({ active: isVotingActive });
 });
 
+const axios = require("axios")
+
 app.listen(8081, ()=>{ // inisasi port listen (server backend)
     console.log("Listening");
 })
