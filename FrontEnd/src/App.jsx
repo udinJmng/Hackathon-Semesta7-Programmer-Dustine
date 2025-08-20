@@ -4,6 +4,7 @@ import Navbar from "./Navbar.jsx";
 import Profile from "./Profile.jsx";
 import Kandidat from "./Kandidat.jsx";
 import Percentage from "./Percentage.jsx";
+import Credit from "./Credit.jsx";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ function App() {
         <Route path="/kandidat" element={<Kandidat user={user} />} />
         <Route path="/percentage" element={<Percentage user={user} />} />
       </Routes>
+        <Credit/>
     </Router>
   );
 }
