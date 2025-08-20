@@ -1,9 +1,21 @@
-import React from 'react'
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./Navbar.jsx";
+import Profile from "./Profile.jsx";
+import Kandidat from "./Kandidat.jsx";
 
 function App() {
+  const [user, setUser] = useState(null);
+
   return (
-    <div>App</div>
-  )
+    <Router>
+      <Navbar user={user} setUser={setUser} />
+      <Routes>
+        <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+        <Route path="/kandidat" element={<Kandidat/>} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
